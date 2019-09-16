@@ -6,11 +6,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -46,7 +49,14 @@ public class Listener implements org.bukkit.event.Listener {
     		try {
     			ItemStack itemstack_drop = itemstack;
     			itemstack_drop.setType(item_to_drop);
-    			ItemMeta itemmeta_drop = itemstack.getItemMeta();
+    			
+    			ItemMeta itemmeta_drop;
+    			if(!itemstack.hasItemMeta()) {
+    				itemmeta_drop = Bukkit.getServer().getItemFactory().getItemMeta(itemstack_drop.getType());
+    			}
+    			else {
+    				itemmeta_drop = itemstack.getItemMeta();
+    			}
     			
             	List<String> str = Arrays.asList(Main.CLAIMED_LORE_TEXT);
             	
@@ -65,7 +75,6 @@ public class Listener implements org.bukkit.event.Listener {
         				itemmeta_drop.setDisplayName("");
         			}
     			}
-
     			
             	int item_max_durability = item_to_drop.getMaxDurability();
             	
@@ -106,5 +115,20 @@ public class Listener implements org.bukkit.event.Listener {
         		loop ++;
     		}
     	}
+	}
+	@EventHandler
+    public void onItemCraft(PrepareItemCraftEvent event) {
+		CraftingInventory result = event.getInventory();
+		ItemStack itemstack_result = result.getResult();
+		ItemMeta itemmeta_result;
+		if(!itemstack_result.hasItemMeta()) {
+			itemmeta_result = Bukkit.getServer().getItemFactory().getItemMeta(itemstack_result.getType());
+		}
+		else {
+			itemmeta_result = itemstack_result.getItemMeta();
+		}
+    	List<String> str = Arrays.asList(Main.CLAIMED_LORE_TEXT);
+		itemmeta_result.setLore(str);
+		itemstack_result.setItemMeta(itemmeta_result);
 	}
 }
