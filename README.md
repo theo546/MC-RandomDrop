@@ -13,6 +13,8 @@ Change the path of the auto-build inside the file `build.xml` in the `RandomDrop
 Import the project inside Eclipse then you're good to go!
 
 ## Configuration
+The configuration file is located in the `RandomDrop` folder inside the `plugins` folder of your Minecraft server, the file you are supposed to edit is `config.yml`.
+
 ### RANDOMIZE_DURABILITY
     (default: false)
 is to randomize the durability of the randomized item IF the item is damageable.
@@ -22,8 +24,8 @@ is to randomize the durability of the randomized item IF the item is damageable.
 is to change the randomized item lore.
 
 ### SEED
-    (default: int-random)
-is to make the randomized items different for each seed, ex: seed 1234, if sand is broken, will loot iron - seed 1233, if sand is broken, will loot gold.
+    (default: random_int)
+is to make the randomized items different for each seed, ex: seed 1234, if sand is broken, will loot iron - seed 1233, if sand is broken, will loot gold. To regenerate a random seed, delete the line. The seed is generated using the `System.currentTimeMillis();` function.
 
 ### KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM
     (default: false)
