@@ -35,11 +35,11 @@ public class Main extends JavaPlugin {
 		KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM = getConfig().getBoolean("KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM");
 		KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE = getConfig().getBoolean("KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE");
 		
-		String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].replaceAll("v", "").replaceAll("_", ".").split("R")[0];
+		String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].replaceAll("v", "").replaceAll("_", "").split("R")[0];
 		if(version.endsWith(".")) version = version.substring(0, version.length() - 1);
-		Double version_double = Double.valueOf(version);
+		int version_int = Integer.valueOf(version);
 		
-		if(version_double < 1.13) {
+		if(version_int < 113) {
 			PAST_FLATTENING = false;
 		}
 		else {
