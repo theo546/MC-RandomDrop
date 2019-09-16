@@ -27,6 +27,14 @@ public class Listener implements org.bukkit.event.Listener {
 		
 		ItemStack itemstack = item.getItemStack();
 		
+		byte magic_id = 0;
+		if(Main.PAST_FLATTENING == false) {
+			// PRE-FLATTENING SUPPORT
+			ItemStack itemstack_check = itemstack;
+			itemstack_check.setDurability((short) 0);
+			magic_id = itemstack.getData().getData();
+		}
+		
 		if(itemstack.hasItemMeta() == true) {
 			ItemMeta itemmeta = itemstack.getItemMeta();
 			if(itemmeta.hasLore() == true) {
@@ -46,7 +54,7 @@ public class Listener implements org.bukkit.event.Listener {
 		int loop = 0;
 		Material item_to_drop;
 		while (true) {
-			item_to_drop = Main.getRandomItemFromItemWithSeed(material, loop);
+			item_to_drop = Main.getRandomItemFromItemWithSeed(material, loop, magic_id);
 			try {
 				ItemStack itemstack_drop = itemstack;
 				itemstack_drop.setType(item_to_drop);
@@ -87,8 +95,8 @@ public class Listener implements org.bukkit.event.Listener {
 								((Damageable) itemmeta_drop).setDamage(0);
 							}
 							else {
-								int nombreAleatoire = 0 + (int)(Math.random() * ((item_max_durability - 0) + 1));
-								((Damageable) itemmeta_drop).setDamage(nombreAleatoire);
+								int random = 0 + (int) (Math.random() * ((item_max_durability - 0) + 1));
+								((Damageable) itemmeta_drop).setDamage(random);
 							}
 						}
 					}
@@ -99,8 +107,8 @@ public class Listener implements org.bukkit.event.Listener {
 							itemstack_drop.setDurability(durability);
 						}
 						else {
-							short nombreAleatoire2 = (short) (0 + (int)(Math.random() * ((item_max_durability - 0) + 1)));
-							itemstack_drop.setDurability(nombreAleatoire2);
+							short random2 = (short) (0 + (int)(Math.random() * ((item_max_durability - 0) + 1)));
+							itemstack_drop.setDurability(random2);
 						}
 					}
 				}

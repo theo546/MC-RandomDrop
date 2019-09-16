@@ -5,6 +5,7 @@ package com.theo546.randomdrop;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,6 +17,7 @@ public class Main extends JavaPlugin {
 	public static int SEED;
 	public static boolean KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM;
 	public static boolean KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE;
+	public static boolean PAST_FLATTENING;
 	
 	@Override
 	public void onEnable() {
@@ -33,10 +35,21 @@ public class Main extends JavaPlugin {
 		KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM = getConfig().getBoolean("KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM");
 		KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE = getConfig().getBoolean("KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE");
 		
+		String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].replaceAll("v", "").replaceAll("_", ".").split("R")[0];
+		if(version.endsWith(".")) version = version.substring(0, version.length() - 1);
+		Double version_double = Double.valueOf(version);
+		
+		if(version_double < 1.13) {
+			PAST_FLATTENING = false;
+		}
+		else {
+			PAST_FLATTENING = true;
+		}
+		
 		getServer().getPluginManager().registerEvents(new Listener(), this);
 	}
 	
-	public static Material getRandomItemFromItemWithSeed(Material material, int fallback) {
+	public static Material getRandomItemFromItemWithSeed(Material material, int fallback, int magic_id) {
 		int count = 0;
 		int block_nbr = 0;
 		ArrayList<Material> names = new ArrayList<>();
@@ -47,13 +60,13 @@ public class Main extends JavaPlugin {
 			names.add(material_loop);
 			count++;
 		}
-		int random_int = pseudoRandom(SEED, count, block_nbr, fallback);
+		int random_int = pseudoRandom(SEED, count, block_nbr, fallback, magic_id);
 		
 		return names.get(random_int);
 	}
-	public static int pseudoRandom(int seed, int i, int add, int fallback) {
+	public static int pseudoRandom(int seed, int i, int add, int fallback, int magic_id) {
 		Random randnum = new Random();
-		randnum.setSeed(seed*add+fallback);
+		randnum.setSeed(seed*add+fallback+magic_id);
 		int result = randnum.nextInt(i);
 		return result;
 	}
