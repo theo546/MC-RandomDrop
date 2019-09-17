@@ -57,7 +57,7 @@ public class Listener implements org.bukkit.event.Listener {
 			result.setResult(Main.randomizeItemStack(itemstack_result, Main.CLAIM_CRAFTED_ITEMS, Main.RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS));
 		}
 		if(Main.RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS == true && Main.RANDOMIZE_CRAFT == false) {
-			itemstack_result.setItemMeta(Main.randomizeDurability(true, itemstack_result));
+			itemstack_result.setItemMeta(Main.randomizeDurability(true, itemstack_result, itemmeta_result));
 		}
 	}
 }

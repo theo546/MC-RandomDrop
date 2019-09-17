@@ -128,7 +128,7 @@ public class Main extends JavaPlugin {
 					}
 				}
 				
-				itemmeta_drop = randomizeDurability(randomize_durability, itemstack_drop);
+				itemmeta_drop = randomizeDurability(randomize_durability, itemstack_drop, itemmeta_drop);
 				
 				itemstack_drop.setAmount(itemstack_amount);
 				itemstack_drop.setItemMeta(itemmeta_drop);
@@ -141,9 +141,8 @@ public class Main extends JavaPlugin {
 		}
 	}
 	@SuppressWarnings("deprecation")
-	public static ItemMeta randomizeDurability(boolean randomize_durability, ItemStack itemstack) {
+	public static ItemMeta randomizeDurability(boolean randomize_durability, ItemStack itemstack, ItemMeta itemmeta) {
 		int item_max_durability = itemstack.getType().getMaxDurability();
-		ItemMeta itemmeta = itemstack.getItemMeta();
 		
 		if(item_max_durability != 0) {
 			try {
