@@ -45,4 +45,4 @@ will, as its name imply, claim the item that is gonna be crafted.
 
 ### RANDOMIZE_CRAFT
     (default: false)
-will, as its name imply, randomize the result item from a crafting table. However, it will not randomize the recipe.
+will, randomize the result item from a crafting table. However, it will not randomize the recipe.
