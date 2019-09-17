@@ -17,7 +17,11 @@ The configuration file is located in the `RandomDrop` folder inside the `plugins
 
 ### RANDOMIZE_DURABILITY
     (default: false)
-is to randomize the durability of the randomized item IF the item is damageable.
+is to randomize the durability of a randomized item IF the item is damageable.
+
+### RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS
+    (default: false)
+is to randomize the durability of a crafted item IF the item is damageable.
 
 ### CLAIMED_LORE_TEXT
     (default: §r§7§lCLAIMED)
@@ -34,3 +38,11 @@ will, as its name imply, once the unclaimed item is drop, keep the enchant of th
 ### KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE
     (default: false)
 will, as its name imply, once the unclaimed item is drop, keep the custom name of the unclaimed item to the randomized item.
+
+### CLAIM_CRAFTED_ITEMS
+    (default: true)
+will, as its name imply, claim the item that is gonna be crafted.
+
+### RANDOMIZE_CRAFT
+    (default: false)
+will, as its name imply, randomize the result item from a crafting table. However, it will not randomize the recipe.

@@ -7,33 +7,19 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class Listener implements org.bukkit.event.Listener {
-	@SuppressWarnings("deprecation")
-	
 	@EventHandler
 	public void onItemSpawn(ItemSpawnEvent event) {
 		Item item = event.getEntity();
-		
 		ItemStack itemstack = item.getItemStack();
-		
-		byte magic_id = 0;
-		if(Main.PAST_FLATTENING == false) {
-			// PRE-FLATTENING SUPPORT
-			ItemStack itemstack_check = itemstack;
-			itemstack_check.setDurability((short) 0);
-			magic_id = itemstack.getData().getData();
-		}
 		
 		if(itemstack.hasItemMeta() == true) {
 			ItemMeta itemmeta = itemstack.getItemMeta();
@@ -47,97 +33,31 @@ public class Listener implements org.bukkit.event.Listener {
 				}
 			}
 		}
-		
-		Material material = itemstack.getType();
-		int itemstack_amount = itemstack.getAmount();
-		
-		int loop = 0;
-		Material item_to_drop;
-		while (true) {
-			item_to_drop = Main.getRandomItemFromItemWithSeed(material, loop, magic_id);
-			try {
-				ItemStack itemstack_drop = itemstack;
-				itemstack_drop.setType(item_to_drop);
-				
-				ItemMeta itemmeta_drop;
-				if(!itemstack.hasItemMeta()) {
-					itemmeta_drop = Bukkit.getServer().getItemFactory().getItemMeta(itemstack_drop.getType());
-				}
-				else {
-					itemmeta_drop = itemstack.getItemMeta();
-				}
-				
-				List<String> str = Arrays.asList(Main.CLAIMED_LORE_TEXT);
-				
-				itemmeta_drop.setLore(str);
-
-				if(Main.KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM == false) {
-					if(itemmeta_drop.hasEnchants()) {
-						for(Enchantment e: itemmeta_drop.getEnchants().keySet()) {
-							itemmeta_drop.removeEnchant(e);
-						}
-					}
-				}
-				
-				if(Main.KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE == false) {
-					if(itemmeta_drop.hasDisplayName()) {
-						itemmeta_drop.setDisplayName("");
-					}
-				}
-				
-				int item_max_durability = item_to_drop.getMaxDurability();
-				
-				if(item_max_durability != 0) {
-					try {
-						// 1.13+
-						if(itemmeta_drop instanceof Damageable) {
-							if(Main.RANDOMIZE_DURABILITY == false) {
-								((Damageable) itemmeta_drop).setDamage(0);
-							}
-							else {
-								int random = 0 + (int) (Math.random() * ((item_max_durability - 0) + 1));
-								((Damageable) itemmeta_drop).setDamage(random);
-							}
-						}
-					}
-					catch (java.lang.NoClassDefFoundError e) {
-						// 1.8 support
-						if(Main.RANDOMIZE_DURABILITY == false) {
-							short durability = 0;
-							itemstack_drop.setDurability(durability);
-						}
-						else {
-							short random2 = (short) (0 + (int)(Math.random() * ((item_max_durability - 0) + 1)));
-							itemstack_drop.setDurability(random2);
-						}
-					}
-				}
-				
-				itemstack_drop.setAmount(itemstack_amount);
-				itemstack_drop.setItemMeta(itemmeta_drop);
-				
-				item.setItemStack(itemstack_drop);
-				
-				break;
-			}
-			catch (java.lang.IllegalArgumentException | java.lang.NullPointerException ex) {
-				loop ++;
-			}
-		}
+		item.setItemStack(Main.randomizeItemStack(itemstack, true, Main.RANDOMIZE_DURABILITY));
 	}
 	@EventHandler
 	public void onItemCraft(PrepareItemCraftEvent event) {
 		CraftingInventory result = event.getInventory();
 		ItemStack itemstack_result = result.getResult();
+		if(itemstack_result == null) return;
+		
 		ItemMeta itemmeta_result;
-		if(!itemstack_result.hasItemMeta()) {
+		if(itemstack_result.hasItemMeta() == false) {
 			itemmeta_result = Bukkit.getServer().getItemFactory().getItemMeta(itemstack_result.getType());
 		}
 		else {
 			itemmeta_result = itemstack_result.getItemMeta();
 		}
-		List<String> str = Arrays.asList(Main.CLAIMED_LORE_TEXT);
-		itemmeta_result.setLore(str);
-		itemstack_result.setItemMeta(itemmeta_result);
+		if(Main.CLAIM_CRAFTED_ITEMS == true && Main.RANDOMIZE_CRAFT == false) {
+			List<String> str = Arrays.asList(Main.CLAIMED_LORE_TEXT);
+			itemmeta_result.setLore(str);
+			itemstack_result.setItemMeta(itemmeta_result);
+		}
+		if(Main.RANDOMIZE_CRAFT == true) {
+			result.setResult(Main.randomizeItemStack(itemstack_result, Main.CLAIM_CRAFTED_ITEMS, Main.RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS));
+		}
+		if(Main.RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS == true && Main.RANDOMIZE_CRAFT == false) {
+			itemstack_result.setItemMeta(Main.randomizeDurability(true, itemstack_result));
+		}
 	}
 }

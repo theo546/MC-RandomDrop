@@ -1,6 +1,6 @@
 main: com.theo546.randomdrop.Main
 name: RandomDrop
-version: "1.0.3"
+version: "1.0.4"
 api-version: 1.14
 author: theo546
 description: A plugin to randomize the items you should normally get!
