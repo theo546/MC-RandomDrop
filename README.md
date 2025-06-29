@@ -30,3 +30,4 @@ The configuration file is generated inside `plugins/RandomDrop/config.yml`. Nota
 - **KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE** – keep custom names when an item is randomized (default: `false`)
 - **CLAIM_CRAFTED_ITEMS** – mark crafted items as claimed (default: `true`)
 - **RANDOMIZE_CRAFT** – randomize crafting outputs (default: `true`)
+- **PERSIST_LOOT_TABLE** – keep the randomized loot table across restarts (default: `true`)
