@@ -32,7 +32,7 @@ public class Main extends JavaPlugin {
         getConfig().addDefault("KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM", false);
         getConfig().addDefault("KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE", false);
         getConfig().addDefault("CLAIM_CRAFTED_ITEMS", true);
-        getConfig().addDefault("RANDOMIZE_CRAFT", false);
+        getConfig().addDefault("RANDOMIZE_CRAFT", true);
         getConfig().options().copyDefaults(true);
         saveConfig();
 

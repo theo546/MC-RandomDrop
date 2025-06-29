@@ -20,6 +20,15 @@ jobs:
         run: |
           VERSION=$(awk -F\" '/^version:/ {print $2}' RandomDrop/src/main/resources/plugin.yml)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Delete existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.version.outputs.version }}
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" -y
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG"
+          fi
       - name: Build
         run: mvn -B -f RandomDrop/pom.xml package
       - name: Release

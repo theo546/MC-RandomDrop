@@ -22,8 +22,12 @@ public class Listener implements org.bukkit.event.Listener {
 
         if (itemstack.hasItemMeta()) {
             ItemMeta meta = itemstack.getItemMeta();
-            if (meta != null && meta.hasLore() && meta.getLore().contains(Main.CLAIMED_LORE_TEXT)) {
-                return;
+            if (meta != null && meta.hasLore()) {
+                for (String line : meta.getLore()) {
+                    if (line.equals(Main.CLAIMED_LORE_TEXT)) {
+                        return;
+                    }
+                }
             }
         }
 
