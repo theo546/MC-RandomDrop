@@ -1,4 +1,4 @@
-// RandomDrop License | Copyright 2024 theo546 - github.com/theo546
+// RandomDrop License | Copyright 2025 theo546 - github.com/theo546
 
 package com.theo546.randomdrop;
 
@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.ChatColor;
 
 public class Listener implements org.bukkit.event.Listener {
     @EventHandler
@@ -24,8 +25,14 @@ public class Listener implements org.bukkit.event.Listener {
             ItemMeta meta = itemstack.getItemMeta();
             if (meta != null && meta.hasLore()) {
                 List<String> lore = meta.getLore();
-                if (lore != null && lore.contains(Main.CLAIMED_LORE_TEXT)) {
-                    return;
+                if (lore != null) {
+                    String target = ChatColor.stripColor(Main.CLAIMED_LORE_TEXT);
+                    for (String line : lore) {
+                        String cleanLine = ChatColor.stripColor(line);
+                        if (cleanLine.contains(target)) {
+                            return;
+                        }
+                    }
                 }
             }
         }
