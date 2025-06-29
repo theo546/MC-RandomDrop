@@ -1,4 +1,4 @@
-// RandomDrop License | Copyright 2025 theo546 - github.com/theo546
+// RandomDrop License | Copyright theo546 - github.com/theo546
 package com.theo546.randomdrop;
 
 import java.util.ArrayList;

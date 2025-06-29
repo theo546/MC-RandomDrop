@@ -4,7 +4,7 @@
 
     <groupId>com.theo546</groupId>
     <artifactId>RandomDrop</artifactId>
-    <version>1.0.6</version>
+    <version>0.0.0</version>
     <packaging>jar</packaging>
 
     <name>RandomDrop</name>
@@ -26,6 +26,7 @@
     </dependencies>
 
     <build>
+        <finalName>osef</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

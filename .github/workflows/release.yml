@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - dev
 
 jobs:
   build:
@@ -20,6 +21,8 @@ jobs:
         run: |
           VERSION=$(awk -F\" '/^version:/ {print $2}' RandomDrop/src/main/resources/plugin.yml)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - id: commit
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Delete existing release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,11 +34,23 @@ jobs:
           fi
       - name: Build
         run: mvn -B -f RandomDrop/pom.xml package
+      - id: prepare
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          COMMIT=${{ steps.commit.outputs.short }}
+          if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            NAME="RandomDrop-${VERSION}-${COMMIT}.jar"
+          else
+            NAME="RandomDrop-${VERSION}.jar"
+          fi
+          mv RandomDrop/target/osef.jar "$NAME"
+          echo "file=$NAME" >> "$GITHUB_OUTPUT"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: RandomDrop ${{ steps.version.outputs.version }}
-          files: RandomDrop/target/*.jar
+          files: ${{ steps.prepare.outputs.file }}
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
