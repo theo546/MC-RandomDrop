@@ -1,4 +1,4 @@
-// GPLv3 + custom | Copyright theo546 - github.com/theo546
+// RandomDrop License | Copyright 2024 theo546 - github.com/theo546
 
 package com.theo546.randomdrop;
 
@@ -23,10 +23,9 @@ public class Listener implements org.bukkit.event.Listener {
         if (itemstack.hasItemMeta()) {
             ItemMeta meta = itemstack.getItemMeta();
             if (meta != null && meta.hasLore()) {
-                for (String line : meta.getLore()) {
-                    if (line.equals(Main.CLAIMED_LORE_TEXT)) {
-                        return;
-                    }
+                List<String> lore = meta.getLore();
+                if (lore != null && lore.contains(Main.CLAIMED_LORE_TEXT)) {
+                    return;
                 }
             }
         }

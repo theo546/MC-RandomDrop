@@ -12,33 +12,7 @@ RandomDrop is a Minecraft plugin that replaces every drop with a deterministic r
 mvn -f RandomDrop/pom.xml package
 ```
 
-The compiled JAR will appear in `RandomDrop/target/`. If you are working inside a Codex environment you may need to configure the Maven proxy as documented below.
-
-### Using the Codex Maven proxy
-
-```bash
-mkdir -p ~/.m2
-cat > ~/.m2/settings.xml <<'SETTINGS'
-<settings>
-  <proxies>
-    <proxy>
-      <id>codexProxy</id>
-      <active>true</active>
-      <protocol>http</protocol>
-      <host>proxy</host>
-      <port>8080</port>
-    </proxy>
-    <proxy>
-      <id>codexProxyHttps</id>
-      <active>true</active>
-      <protocol>https</protocol>
-      <host>proxy</host>
-      <port>8080</port>
-    </proxy>
-  </proxies>
-</settings>
-SETTINGS
-```
+The compiled JAR will appear in `RandomDrop/target/`.
 
 ## Continuous delivery
 
