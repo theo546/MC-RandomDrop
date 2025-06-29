@@ -1,6 +1,11 @@
 // RandomDrop License | Copyright theo546 - github.com/theo546
 package com.theo546.randomdrop;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +35,27 @@ public class Main extends JavaPlugin {
     public static boolean KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE;
     public static boolean CLAIM_CRAFTED_ITEMS;
     public static boolean RANDOMIZE_CRAFT;
+    public static boolean PERSIST_LOOT_TABLE;
     public static Map<Material, Material> LOOT_TABLE;
+
+    private File getLootTableFile() {
+        String hash = sha256(String.valueOf(SEED)).substring(0, 16);
+        return new File(getDataFolder(), "loot_table_" + hash + ".yml");
+    }
+
+    private static String sha256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encoded = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : encoded) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public void onEnable() {
@@ -41,6 +67,7 @@ public class Main extends JavaPlugin {
         getConfig().addDefault("KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE", false);
         getConfig().addDefault("CLAIM_CRAFTED_ITEMS", true);
         getConfig().addDefault("RANDOMIZE_CRAFT", true);
+        getConfig().addDefault("PERSIST_LOOT_TABLE", true);
         getConfig().options().copyDefaults(true);
         saveConfig();
 
@@ -52,6 +79,7 @@ public class Main extends JavaPlugin {
         KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE = getConfig().getBoolean("KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE");
         CLAIM_CRAFTED_ITEMS = getConfig().getBoolean("CLAIM_CRAFTED_ITEMS");
         RANDOMIZE_CRAFT = getConfig().getBoolean("RANDOMIZE_CRAFT");
+        PERSIST_LOOT_TABLE = getConfig().getBoolean("PERSIST_LOOT_TABLE");
 
         initLootTable();
         getServer().getPluginManager().registerEvents(new Listener(), this);
@@ -59,6 +87,11 @@ public class Main extends JavaPlugin {
 
     private void initLootTable() {
         LOOT_TABLE = new HashMap<>();
+        File file = getLootTableFile();
+        if (PERSIST_LOOT_TABLE && !getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+
         World world = Bukkit.getWorlds().get(0);
         Location spawn = world.getSpawnLocation().clone();
         spawn.setY(255);
@@ -75,10 +108,44 @@ public class Main extends JavaPlugin {
             }
         }
 
+        YamlConfiguration yaml = new YamlConfiguration();
+        if (PERSIST_LOOT_TABLE && file.exists()) {
+            try {
+                yaml.load(file);
+                for (String key : yaml.getKeys(false)) {
+                    Material k = Material.getMaterial(key);
+                    Material v = Material.getMaterial(yaml.getString(key));
+                    if (k != null && v != null) {
+                        LOOT_TABLE.put(k, v);
+                    }
+                }
+            } catch (Exception e) {
+                getLogger().warning("Failed to load loot table: " + e.getMessage());
+            }
+        }
+
         List<Material> shuffled = new ArrayList<>(valid);
         Collections.shuffle(shuffled, new Random(SEED));
-        for (int i = 0; i < valid.size(); i++) {
-            LOOT_TABLE.put(valid.get(i), shuffled.get(i));
+        shuffled.removeAll(LOOT_TABLE.values());
+
+        boolean updated = false;
+        for (Material m : valid) {
+            if (!LOOT_TABLE.containsKey(m)) {
+                if (shuffled.isEmpty()) break;
+                LOOT_TABLE.put(m, shuffled.remove(0));
+                updated = true;
+            }
+        }
+
+        if (PERSIST_LOOT_TABLE && (updated || !file.exists())) {
+            for (Map.Entry<Material, Material> entry : LOOT_TABLE.entrySet()) {
+                yaml.set(entry.getKey().name(), entry.getValue().name());
+            }
+            try {
+                yaml.save(file);
+            } catch (IOException e) {
+                getLogger().warning("Failed to save loot table: " + e.getMessage());
+            }
         }
     }
 
