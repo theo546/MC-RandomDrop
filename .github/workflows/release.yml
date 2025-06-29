@@ -1,0 +1,41 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - id: version
+        run: |
+          VERSION=$(awk -F\" '/^version:/ {print $2}' RandomDrop/src/main/resources/plugin.yml)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Delete existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.version.outputs.version }}
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" -y
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG"
+          fi
+      - name: Build
+        run: mvn -B -f RandomDrop/pom.xml package
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: RandomDrop ${{ steps.version.outputs.version }}
+          files: RandomDrop/target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,48 +1,58 @@
+<p align="center">
+  <img src="logo.svg" width="120" alt="RandomDrop logo" />
+</p>
+
 # RandomDrop
-is a plugin to randomize the items you are normally supposed to get when an item entity drop.
 
-This plugin has been tested under 1.14.4 (Paper) and 1.8.8 (Spigot).
+RandomDrop is a Minecraft plugin that replaces every drop with a deterministic random item. The project targets **Paper 1.21.6** and is intended to be dropped straight into your server's `plugins` folder.
 
-This plugin has been inspired by a French Minecraft video series, but since the maker of the plugin wasn't willing to share it I just decided to make an identical one to share for the public.
+## Building from source
 
-# How to build?
-Clone the repository using git, then run `sh build-tools.sh` inside the cloned repository to build the Spigot 1.14.4 jar.
+```bash
+mvn -f RandomDrop/pom.xml package
+```
 
-Change the path of the auto-build inside the file `build.xml` in the `RandomDrop` directory to the plugins directory of your Minecraft server.
+The compiled JAR will appear in `RandomDrop/target/`. If you are working inside a Codex environment you may need to configure the Maven proxy as documented below.
 
-Import the project inside Eclipse then you're good to go!
+### Using the Codex Maven proxy
 
-## Configuration
-The configuration file is located in the `RandomDrop` folder inside the `plugins` folder of your Minecraft server, the file you are supposed to edit is `config.yml`.
+```bash
+mkdir -p ~/.m2
+cat > ~/.m2/settings.xml <<'SETTINGS'
+<settings>
+  <proxies>
+    <proxy>
+      <id>codexProxy</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>proxy</host>
+      <port>8080</port>
+    </proxy>
+    <proxy>
+      <id>codexProxyHttps</id>
+      <active>true</active>
+      <protocol>https</protocol>
+      <host>proxy</host>
+      <port>8080</port>
+    </proxy>
+  </proxies>
+</settings>
+SETTINGS
+```
 
-### RANDOMIZE_DURABILITY
-    (default: false)
-is to randomize the durability of a randomized item IF the item is damageable.
+## Continuous delivery
 
-### RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS
-    (default: false)
-is to randomize the durability of a crafted item IF the item is damageable.
+Whenever `main` is updated, GitHub Actions builds the plugin and publishes a release. If a release with the same tag already exists, it is removed before uploading the new artifact.
 
-### CLAIMED_LORE_TEXT
-    (default: §r§7§lCLAIMED)
-is to change the randomized item lore.
+## Configuration options
 
-### SEED
-    (default: random_int)
-is to make the randomized items different for each seed, ex: seed 1234, if sand is broken, will loot iron - seed 1233, if sand is broken, will loot gold. To regenerate a random seed, delete the line. The seed is generated using the `System.currentTimeMillis();` function.
+The configuration file is generated inside `plugins/RandomDrop/config.yml`. Notable options include:
 
-### KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM
-    (default: false)
-will, as its name imply, once the unclaimed item is drop, keep the enchant of the unclaimed item to the randomized item.
-
-### KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE
-    (default: false)
-will, as its name imply, once the unclaimed item is drop, keep the custom name of the unclaimed item to the randomized item.
-
-### CLAIM_CRAFTED_ITEMS
-    (default: true)
-will, as its name imply, claim the item that is gonna be crafted.
-
-### RANDOMIZE_CRAFT
-    (default: false)
-will randomize the result item from a crafting table. However, it will not randomize the recipe.
+- **RANDOMIZE_DURABILITY** – randomize durability of dropped items (default: `false`)
+- **RANDOMIZE_DURABILITY_OF_CRAFTED_ITEMS** – randomize durability of crafted items (default: `false`)
+- **CLAIMED_LORE_TEXT** – lore line used to mark claimed items (default: `§r§7§lCLAIMED`)
+- **SEED** – controls the drop mapping; leave blank to regenerate (default: random value)
+- **KEEP_ENCHANT_ON_DROPPED_UNCLAIMED_ITEM** – keep enchantments when an item is randomized (default: `false`)
+- **KEEP_ITEM_CUSTOMNAME_ON_RANDOMIZE** – keep custom names when an item is randomized (default: `false`)
+- **CLAIM_CRAFTED_ITEMS** – mark crafted items as claimed (default: `true`)
+- **RANDOMIZE_CRAFT** – randomize crafting outputs (default: `true`)
