@@ -1,16 +1,39 @@
 # RandomDrop
 is a plugin to randomize the items you are normally supposed to get when an item entity drop.
 
-This plugin has been tested under 1.14.4 (Paper) and 1.8.8 (Spigot).
+This plugin now targets Paper 1.21.6.
 
 This plugin has been inspired by a French Minecraft video series, but since the maker of the plugin wasn't willing to share it I just decided to make an identical one to share for the public.
 
 # How to build?
-Clone the repository using git, then run `sh build-tools.sh` inside the cloned repository to build the Spigot 1.14.4 jar.
+Clone the repository using git and run `mvn package` inside the `RandomDrop` directory to build the plugin JAR. The resulting file can be dropped directly into your server's `plugins` folder.
+If you are running in a Codex workspace you may need to configure Maven to use
+the built-in proxy before running the build command:
 
-Change the path of the auto-build inside the file `build.xml` in the `RandomDrop` directory to the plugins directory of your Minecraft server.
-
-Import the project inside Eclipse then you're good to go!
+```sh
+mkdir -p ~/.m2
+cat > ~/.m2/settings.xml <<EOF
+<settings>
+  <proxies>
+    <proxy>
+      <id>codexProxy</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>proxy</host>
+      <port>8080</port>
+    </proxy>
+    <proxy>
+      <id>codexProxyHttps</id>
+      <active>true</active>
+      <protocol>https</protocol>
+      <host>proxy</host>
+      <port>8080</port>
+    </proxy>
+  </proxies>
+</settings>
+EOF
+```
+When the `main` branch is updated, GitHub Actions automatically builds the plugin and publishes a release. The tag is derived from the `version` field in `plugin.yml`.
 
 ## Configuration
 The configuration file is located in the `RandomDrop` folder inside the `plugins` folder of your Minecraft server, the file you are supposed to edit is `config.yml`.
