@@ -4,7 +4,7 @@
 
 # RandomDrop
 
-RandomDrop is a Minecraft plugin that replaces every drop with a deterministic random item. The project targets **Paper 1.21.6** and is intended to be dropped straight into your server's `plugins` folder.
+RandomDrop is a Minecraft plugin that replaces every drop with a deterministic random item. The project targets **Paper 1.21.7** and is intended to be dropped straight into your server's `plugins` folder.
 
 ## Building from source
 
