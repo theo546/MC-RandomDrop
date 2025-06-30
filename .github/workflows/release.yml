@@ -23,12 +23,21 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - id: commit
         run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - id: tag
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          COMMIT=${{ steps.commit.outputs.short }}
+          if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            echo "tag=${VERSION}-${COMMIT}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${VERSION}" >> "$GITHUB_OUTPUT"
+          fi
       - name: Delete existing release
         if: github.ref != 'refs/heads/dev'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG=${{ steps.version.outputs.version }}
+          TAG=${{ steps.tag.outputs.tag }}
           if state=$(gh release view "$TAG" --json draft -q .draft 2>/dev/null); then
             if [ "$state" = "false" ]; then
               gh release delete "$TAG" -y
@@ -51,7 +60,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.tag.outputs.tag }}
           name: RandomDrop ${{ steps.version.outputs.version }}
           files: ${{ steps.prepare.outputs.file }}
           draft: ${{ github.ref == 'refs/heads/dev' }}
