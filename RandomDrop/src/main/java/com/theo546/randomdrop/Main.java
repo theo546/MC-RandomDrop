@@ -109,14 +109,22 @@ public class Main extends JavaPlugin {
         }
 
         YamlConfiguration yaml = new YamlConfiguration();
+        boolean yamlCorrupted = false;
         if (PERSIST_LOOT_TABLE && file.exists()) {
             try {
                 yaml.load(file);
                 for (String key : yaml.getKeys(false)) {
                     Material k = Material.getMaterial(key);
-                    Material v = Material.getMaterial(yaml.getString(key));
+                    String value = yaml.getString(key);
+                    Material v = Material.getMaterial(value);
                     if (k != null && v != null) {
-                        LOOT_TABLE.put(k, v);
+                        if (k != v) {
+                            LOOT_TABLE.put(k, v);
+                        } else {
+                            yamlCorrupted = true;
+                        }
+                    } else {
+                        yamlCorrupted = true;
                     }
                 }
             } catch (Exception e) {
@@ -128,7 +136,7 @@ public class Main extends JavaPlugin {
         Collections.shuffle(shuffled, new Random(SEED));
         shuffled.removeAll(LOOT_TABLE.values());
 
-        boolean updated = false;
+        boolean updated = yamlCorrupted;
         for (Material m : valid) {
             if (!LOOT_TABLE.containsKey(m)) {
                 if (shuffled.isEmpty()) break;
@@ -138,11 +146,12 @@ public class Main extends JavaPlugin {
         }
 
         if (PERSIST_LOOT_TABLE && (updated || !file.exists())) {
+            YamlConfiguration out = new YamlConfiguration();
             for (Map.Entry<Material, Material> entry : LOOT_TABLE.entrySet()) {
-                yaml.set(entry.getKey().name(), entry.getValue().name());
+                out.set(entry.getKey().name(), entry.getValue().name());
             }
             try {
-                yaml.save(file);
+                out.save(file);
             } catch (IOException e) {
                 getLogger().warning("Failed to save loot table: " + e.getMessage());
             }
