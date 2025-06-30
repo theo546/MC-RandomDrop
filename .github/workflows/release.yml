@@ -29,9 +29,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=${{ steps.version.outputs.version }}
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release delete "$TAG" -y
-            gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG"
+          if state=$(gh release view "$TAG" --json draft -q .draft 2>/dev/null); then
+            if [ "$state" = "false" ]; then
+              gh release delete "$TAG" -y
+              gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG"
+            fi
           fi
       - name: Build
         run: mvn -B -f RandomDrop/pom.xml package
@@ -47,12 +49,13 @@ jobs:
           mv RandomDrop/target/osef.jar "$NAME"
           echo "file=$NAME" >> "$GITHUB_OUTPUT"
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: RandomDrop ${{ steps.version.outputs.version }}
           files: ${{ steps.prepare.outputs.file }}
-          prerelease: ${{ github.ref == 'refs/heads/dev' }}
-          generate_release_notes: true
+          draft: ${{ github.ref == 'refs/heads/dev' }}
+          prerelease: false
+          generate_release_notes: ${{ github.ref != 'refs/heads/dev' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
