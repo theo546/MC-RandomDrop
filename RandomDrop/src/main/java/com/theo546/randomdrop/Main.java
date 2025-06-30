@@ -109,22 +109,17 @@ public class Main extends JavaPlugin {
         }
 
         YamlConfiguration yaml = new YamlConfiguration();
-        boolean yamlCorrupted = false;
+        boolean updated = false;
         if (PERSIST_LOOT_TABLE && file.exists()) {
             try {
                 yaml.load(file);
                 for (String key : yaml.getKeys(false)) {
                     Material k = Material.getMaterial(key);
-                    String value = yaml.getString(key);
-                    Material v = Material.getMaterial(value);
-                    if (k != null && v != null) {
-                        if (k != v) {
-                            LOOT_TABLE.put(k, v);
-                        } else {
-                            yamlCorrupted = true;
-                        }
+                    Material v = Material.getMaterial(yaml.getString(key));
+                    if (k != null && v != null && k != v) {
+                        LOOT_TABLE.put(k, v);
                     } else {
-                        yamlCorrupted = true;
+                        updated = true;
                     }
                 }
             } catch (Exception e) {
@@ -136,12 +131,20 @@ public class Main extends JavaPlugin {
         Collections.shuffle(shuffled, new Random(SEED));
         shuffled.removeAll(LOOT_TABLE.values());
 
-        boolean updated = yamlCorrupted;
         for (Material m : valid) {
             if (!LOOT_TABLE.containsKey(m)) {
-                if (shuffled.isEmpty()) break;
-                LOOT_TABLE.put(m, shuffled.remove(0));
-                updated = true;
+                Material candidate = null;
+                while (!shuffled.isEmpty()) {
+                    Material choice = shuffled.remove(0);
+                    if (choice != m) {
+                        candidate = choice;
+                        break;
+                    }
+                }
+                if (candidate != null) {
+                    LOOT_TABLE.put(m, candidate);
+                    updated = true;
+                }
             }
         }
 
