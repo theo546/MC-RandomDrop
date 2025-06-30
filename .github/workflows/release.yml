@@ -37,6 +37,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          VERSION=${{ steps.version.outputs.version }}
           TAG=${{ steps.tag.outputs.tag }}
           if state=$(gh release view "$TAG" --json draft -q .draft 2>/dev/null); then
             if [ "$state" = "false" ]; then
@@ -44,6 +45,10 @@ jobs:
               gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG"
             fi
           fi
+          gh api -X GET "repos/${{ github.repository }}/releases" --paginate -q ".[] | select(.draft == true and .tag_name | startswith(\"${VERSION}-\")) | .tag_name" | while read DRAFT_TAG; do
+            gh release delete "$DRAFT_TAG" -y
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$DRAFT_TAG"
+          done
       - name: Build
         run: mvn -B -f RandomDrop/pom.xml package
       - id: prepare
@@ -61,7 +66,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: RandomDrop ${{ steps.version.outputs.version }}
+          name: ${{ github.ref == 'refs/heads/dev' && format('RandomDrop {0}-dev {1}', steps.version.outputs.version, steps.commit.outputs.short) || format('RandomDrop {0}', steps.version.outputs.version) }}
           files: ${{ steps.prepare.outputs.file }}
           draft: ${{ github.ref == 'refs/heads/dev' }}
           prerelease: false
